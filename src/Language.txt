@@ -1,0 +1,51 @@
+package com.ss.utils;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
+import com.ss.GMain;
+import java.util.HashMap;
+
+public class Language {
+
+  private static HashMap<String, HashMap<String, String>> hmLanguage;
+
+  private Language() {}
+
+  public static void loadFile() {
+    if (hmLanguage != null && hmLanguage.size() > 0) return;
+
+    FileHandle  file      = Gdx.files.internal("resources/language.txt");
+    String[]    contents  = file.readString().split("\n");
+    String[]    keys      = contents[0].split("__");
+
+    hmLanguage = new HashMap<>();
+    for (int i=1; i<contents.length; i++) {
+      String[] data                     = contents[i].split("__");
+      HashMap<String, String> location  = new HashMap<>();
+
+      for (int j=0; j<keys.length; j++)
+        location.put(keys[j], data[j+1]);
+
+      hmLanguage.put(data[0], location);
+    }
+  }
+
+  public static String getText(String key) {
+    HashMap<String, String> h = hmLanguage.get(GMain.platform.GetDefaultLanguage());
+    if (h == null)
+      h = hmLanguage.get("en");
+
+    return h.get(key) == null ? "" : h.get(key);
+  }
+
+  public static String getText(String key, String replace) {
+    HashMap<String, String> h = hmLanguage.get(GMain.platform.GetDefaultLanguage());
+    if (h == null)
+      h = hmLanguage.get("en");
+
+    if (h.get(key) == null) return "";
+
+    return h.get(key).replace("{}", replace + "");
+  }
+
+}
